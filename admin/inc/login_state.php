@@ -6,3 +6,5 @@ if (empty($_SESSION['current_user'])) {
 	header('Location: /admin/login.php');
 	exit();
 }
+
+session_write_close();

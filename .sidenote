@@ -1,0 +1,20 @@
+通过 a 标签设置表单提交
+实际上，任何元素都可以触发表单提交，只要调用 form元素.submit() 方法即可
+jQuery 和 原生 js 差不多，没有过多研究
+
+通过 a 标签发送 post 请求
+实际上，还是一个道理，任何都可以，通过 ajax 即可（一般不可跨源）
+
+sql 注入
+
+?id=1 or 1 = 1
+
+解决：
+这里类似 js， 获取到不是数字为止
+(int)$_GET['id']
+或者
+is_numeric($_GET['id'])
+
+实际上，这种注入方式还是针对于 delete from categories where id = $id;
+而下面的方式，这种注入就无法成功
+delete from categories where id in ({$id});
