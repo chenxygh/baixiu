@@ -18,7 +18,7 @@ function login () {
 	$pass = $_POST['password'];
 
 	// 连接数据库，校验邮箱和密码
-	$conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+	$conn = mysqli_connect(XIU_DB_HOST, XIU_DB_USER, XIU_DB_PASS, XIU_DB_NAME);
 	if (!$conn) {
 		exit('连接数据库失败');
 	}
@@ -45,6 +45,7 @@ function login () {
 	// 一切 OK, 设置 session, 跳转回 index.php
 	$_SESSION['current_user'] = $userinfo;
 	header('Location: /admin/index.php');
+	exit();
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
