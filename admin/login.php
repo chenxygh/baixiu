@@ -18,7 +18,7 @@ function login () {
 	$pass = $_POST['password'];
 
 	// 连接数据库，校验邮箱和密码
-	$conn = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+	$conn = mysqli_connect(XIU_DB_HOST, XIU_DB_USER, XIU_DB_PASS, XIU_DB_NAME);
 	if (!$conn) {
 		exit('连接数据库失败');
 	}
@@ -45,6 +45,7 @@ function login () {
 	// 一切 OK, 设置 session, 跳转回 index.php
 	$_SESSION['current_user'] = $userinfo;
 	header('Location: /admin/index.php');
+	exit();
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -60,9 +61,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	<title>Sign in &laquo; Admin</title>
 	<link rel="stylesheet" href="/static/assets/vendors/bootstrap/css/bootstrap.css">
 	<link rel="stylesheet" href="/static/assets/css/admin.css">
+	<link rel="stylesheet" href="/static/assets/vendors/animate/animate.css">
+	<script src="/static/assets/vendors/jquery/jquery.js"></script>
+	<script>
+		$(function ($) {
+			$('#email').bind('blur', function () {
+				// 失去焦点时，获取 email 文本框的内容
+				var email = $('#email').val();
+
+				/**
+				 *
+				 * 提前的正则 看心情 不加了
+				 *
+				 * // 设置默认头像
+				 * $('.avatar').attr({src: '/static/assets/img/default.png'});
+				 * 
+				 * // 正则校验邮箱
+				 * var emailReg = /^[0-9a-zA-Z_.-]+@[0-9a-zA-Z_.-]+(\.[a-zA-Z]+){1,2}$/;
+				 * if (!emailReg.test(email)) return;
+				 * 
+				 */
+
+				// 发送 ajax 请求，获取用户信息，设置头像
+				$.get('/admin/api/avatar.php', {email: email}, function (res) {
+					// 短路计算
+					var avatar = res['avatar'] || '/static/assets/img/default.png';
+					$('.avatar').fadeOut(function () {
+						// 淡出后
+						$(this).bind('load', function () {
+							// 图片加载完成后 淡入
+							$(this).fadeIn();
+						}).attr({src: avatar});
+					});
+				});
+			});
+		});
+	</script>
 </head>
 <body>
-	<div class="login">
+	<div class="login<?php echo empty($message)? '': ' shake animated' ?>">
 		<form class="login-wrap" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" autocomplete="off" novalidate>
 			<img class="avatar" src="/static/assets/img/default.png">
 			<!-- 有错误信息时展示 -->

@@ -4,12 +4,22 @@
 $path = $_SERVER['PHP_SELF'];
 $filename = pathinfo($path, PATHINFO_FILENAME);
 
+// TODO: 设置侧边栏的 avatar 和 nickname
+// 注意，引入文件的路径一般采用物理路径
+// 在 config 里有
+// 但是，不搞了，有效果先，那种以后再深究
+// 不然，要引入 config 又涉及路径
+// 麻烦
+require_once '../functions.php';
+
+$userinfo = xiu_get_current_user ();
+
 ?>
 
 <div class="aside">
 	<div class="profile">
-		<img class="avatar" src="/static/uploads/avatar.jpg">
-		<h3 class="name">布头儿</h3>
+		<img class="avatar" src="<?php echo empty($userinfo['avatar'])? '/static/assets/img/default.png': $userinfo ['avatar']; ?>">
+		<h3 class="name"><?php echo empty($userinfo['nickname'])? 'fuck': $userinfo ['nickname']; ?></h3>
 	</div>
 	<ul class="nav">
 		<li<?php echo $filename === 'index'? ' class="active"': ''; ?>>
