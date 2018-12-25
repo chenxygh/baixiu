@@ -1,3 +1,4 @@
+<?php include 'inc/login_state.php'; ?>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
