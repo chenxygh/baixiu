@@ -2,8 +2,6 @@
 
 require_once '../config.php';
 
-session_start();
-
 function login () {
 	// 获取到邮箱和密码
 	if (empty($_POST['email'])) {
@@ -43,13 +41,22 @@ function login () {
 	}
 
 	// 一切 OK, 设置 session, 跳转回 index.php
+	session_start();
 	$_SESSION['current_user'] = $userinfo;
+	session_write_close();
+
 	header('Location: /admin/index.php');
 	exit();
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	login();
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && !empty($_GET['action']) && $_GET['action'] === 'logout') {
+	session_start();
+	unset($_SESSION['current_user']);
+	session_write_close();
 }
 
 ?>
@@ -65,20 +72,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	<script src="/static/assets/vendors/jquery/jquery.js"></script>
 	<script>
 		$(function ($) {
+			var oldEmail = [];
 			$('#email').bind('blur', function () {
 				// 失去焦点时，获取 email 文本框的内容
 				var email = $('#email').val();
 
+				// 正则校验邮箱
+				var emailReg = /^[0-9a-zA-Z_.-]+@[0-9a-zA-Z_.-]+(\.[a-zA-Z]+){1,2}$/;
+				if (!emailReg.test(email)) {
+					// 邮箱有误，设置默认头像
+					$('.avatar').attr({src: '/static/assets/img/default.png'});
+					return;
+				}
+
+				// 如果和上次的输入一样，就不发送 ajax 更换头像
+				// 注意，在第一次的时候，还没有历史纪录的时候，还是会发送一下 ajax 请求，这是完全合理的
+				oldEmail.unshift(email);
+				if (email === oldEmail.splice(1, 1)[0]) return;
+
 				/**
 				 *
 				 * 提前的正则 看心情 不加了
-				 *
-				 * // 设置默认头像
-				 * $('.avatar').attr({src: '/static/assets/img/default.png'});
-				 * 
-				 * // 正则校验邮箱
-				 * var emailReg = /^[0-9a-zA-Z_.-]+@[0-9a-zA-Z_.-]+(\.[a-zA-Z]+){1,2}$/;
-				 * if (!emailReg.test(email)) return;
 				 * 
 				 */
 
