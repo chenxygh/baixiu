@@ -127,13 +127,13 @@ $categories = xiu_select_all('select * from categories;');
 
 			var cbAll = $('#J_cbAll');
 			var cbs = $('tbody :checkbox');
-			cbAll.bind('click', function () {
+			cbAll.bind('change', function () {
 				cbs.prop({checked: cbAll.prop('checked')});
 
 				var checkedLen = $('tbody :checked').length;
 				delAllDisplay(checkedLen);
 			});
-			cbs.bind('click', function () {
+			cbs.bind('change', function () {
 				var checkedLen = $('tbody :checked').length;
 
 				cbAll.prop({checked: checkedLen === cbs.length});
