@@ -65,3 +65,9 @@ a 标签对应的 DOM 对象有一个 search 属性，可以设置 url 中网站
 
 
 php 里面的短路计算很恶心的，不存在什么的还得 isset  empty  什么的， 尽量少用，用三元运算符代替
+
+
+
+
+
+array.includes(ele) es5 新增方法，判断是否有
