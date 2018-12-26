@@ -13,7 +13,7 @@ function add () {
 	$slug = $_POST['slug'];
 
 	// 向数据库里添加
-	$affected_rows = xiu_execute("insert into categories value (null, '" . $name . "', '" . $slug . "');");
+	$affected_rows = xiu_execute("insert into categories value (null, '" . $slug . "', '" . $name . "');");
 	$GLOBALS['success'] = $affected_rows > 0;
 	$GLOBALS['message'] = $affected_rows <= 0? '添加失败': '添加成功';
 }
