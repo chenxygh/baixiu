@@ -3,6 +3,12 @@
 
 require_once '../functions.php';
 
+if (!empty($_GET['id'])) {
+	$id = $_GET['id'];
+	// 根据 id 获取要修改的信息
+	$category_one = xiu_select_one("select * from categories where id = {$id} limit 1;");
+}
+
 function add () {
 	if (empty($_POST['name']) || empty($_POST['slug'])) {
 		$GLOBALS['success'] = false;
@@ -18,8 +24,28 @@ function add () {
 	$GLOBALS['message'] = $affected_rows <= 0? '添加失败': '添加成功';
 }
 
+function edit () {
+	global $id;
+	global $category_one;
+
+	$name = empty($_POST['name'])? $category_one['name']: $_POST['name'];
+	$category_one['name'] = $name;// 更新本地数据
+
+	$slug = empty($_POST['slug'])? $category_one['slug']: $_POST['slug'];
+	$category_one['slug'] = $slug;
+
+	// 向数据库里更新
+	$affected_rows = xiu_execute("update categories set name = '{$name}', slug = '{$slug}' where id = {$id};");
+	$GLOBALS['success'] = $affected_rows > 0;
+	$GLOBALS['message'] = $affected_rows <= 0? '更新失败': '更新成功';
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-	add();
+	if (empty($_GET['id'])) {
+		add();
+	} else {
+		edit();
+	}
 }
 
 // select 总是在 增删改 之后，这样可以保持数据的最新
@@ -60,21 +86,39 @@ $categories = xiu_select_all('select * from categories;');
 			<?php endif ?>
 			<div class="row">
 				<div class="col-md-4">
-					<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
-						<h2>添加新分类目录</h2>
-						<div class="form-group">
-							<label for="name">名称</label>
-							<input id="name" class="form-control" name="name" type="text" placeholder="分类名称">
-						</div>
-						<div class="form-group">
-							<label for="slug">别名</label>
-							<input id="slug" class="form-control" name="slug" type="text" placeholder="slug">
-							<p class="help-block">https://zce.me/category/<strong>slug</strong></p>
-						</div>
-						<div class="form-group">
-							<button class="btn btn-primary" type="submit">添加</button>
-						</div>
-					</form>
+					<?php if (empty($category_one)): ?>
+						<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+							<h2>添加新分类目录</h2>
+							<div class="form-group">
+								<label for="name">名称</label>
+								<input id="name" class="form-control" name="name" type="text" placeholder="分类名称">
+							</div>
+							<div class="form-group">
+								<label for="slug">别名</label>
+								<input id="slug" class="form-control" name="slug" type="text" placeholder="slug">
+								<p class="help-block">https://zce.me/category/<strong>slug</strong></p>
+							</div>
+							<div class="form-group">
+								<button class="btn btn-primary" type="submit">添加</button>
+							</div>
+						</form>
+					<?php else: ?>
+						<form action="<?php echo $_SERVER['PHP_SELF']; ?>?id=<?php echo $category_one['id']; ?>" method="post">
+							<h2>修改分类目录</h2>
+							<div class="form-group">
+								<label for="name">名称</label>
+								<input id="name" class="form-control" name="name" type="text" placeholder="分类名称" value="<?php echo $category_one['name']; ?>">
+							</div>
+							<div class="form-group">
+								<label for="slug">别名</label>
+								<input id="slug" class="form-control" name="slug" type="text" placeholder="slug" value="<?php echo $category_one['slug']; ?>">
+								<p class="help-block">https://zce.me/category/<strong>slug</strong></p>
+							</div>
+							<div class="form-group">
+								<button class="btn btn-primary" type="submit">修改</button>
+							</div>
+						</form>
+					<?php endif ?>
 				</div>
 				<div class="col-md-8">
 					<div class="page-action">
@@ -98,7 +142,7 @@ $categories = xiu_select_all('select * from categories;');
 										<td><?php echo $item['name'] ?></td>
 										<td><?php echo $item['slug'] ?></td>
 										<td class="text-center">
-											<a href="javascript:;" class="btn btn-info btn-xs">编辑</a>
+											<a href="/admin/categories.php?id=<?php echo $item['id']; ?>" class="btn btn-info btn-xs">编辑</a>
 											<a href="/admin/categories_del.php?id=<?php echo $item['id']; ?>" class="btn btn-danger btn-xs">删除</a>
 										</td>
 									</tr>
