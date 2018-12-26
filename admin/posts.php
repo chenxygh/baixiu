@@ -1,4 +1,65 @@
 <?php include 'inc/login_state.php'; ?>
+
+<?php
+
+require_once '../functions.php';
+
+/* ===================== 数据格式转换 =============== */
+
+/**
+ * 转换状态显示
+ * @param  string $status 英文
+ * @return string        中文
+ */
+function convert_status ($status) {
+	$dict = array('drafted' => '草稿', 'published' => '已发布', 'trashed' => '回收站');
+	return empty($dict[$status])? '未知': $dict[$status];
+}
+
+/**
+ * 转换时间格式
+ * @param  [type] $created [description]
+ * @return [type]          [description]
+ */
+function convert_time ($created) {
+	return date('Y年m月d日<b\r/>H:i:s', strtotime($created));
+}
+
+// /**
+//  * 通过 user_id 获取 nickname
+//  * @param  [type] $user_id [description]
+//  * @return [type]          [description]
+//  */
+// function convert_nickname ($user_id) {
+// 	$nickname = xiu_select_one("select nickname from users where id={$user_id} limit 1;");
+// 	return $nickname? $nickname['nickname']: '未知';
+// }
+
+// /**
+//  * 通过 category_id 获取分类名称
+//  * @param  [type] $category_id [description]
+//  * @return [type]              [description]
+//  */
+// function convert_category ($category_id) {
+// 	$name = xiu_select_one("select name from categories where id={$category_id} limit 1;");
+// 	return $name? $name['name']: '未知';
+// }
+
+$select = 'select
+	posts.id,
+	posts.title,
+	users.nickname as user_name,
+	categories.`name`as category_name,
+	posts.created,
+	posts.`status`
+from posts
+inner join categories on posts.category_id = categories.id
+inner join users on posts.user_id = users.id;';
+
+$posts = xiu_select_all($select);
+
+?>
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -60,42 +121,24 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr>
-				<td class="text-center"><input type="checkbox"></td>
-				<td>随便一个名称</td>
-				<td>小小</td>
-				<td>潮科技</td>
-				<td class="text-center">2016/10/07</td>
-				<td class="text-center">已发布</td>
-				<td class="text-center">
-					<a href="javascript:;" class="btn btn-default btn-xs">编辑</a>
-					<a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
-				</td>
-			</tr>
-			<tr>
-				<td class="text-center"><input type="checkbox"></td>
-				<td>随便一个名称</td>
-				<td>小小</td>
-				<td>潮科技</td>
-				<td class="text-center">2016/10/07</td>
-				<td class="text-center">已发布</td>
-				<td class="text-center">
-					<a href="javascript:;" class="btn btn-default btn-xs">编辑</a>
-					<a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
-				</td>
-			</tr>
-			<tr>
-				<td class="text-center"><input type="checkbox"></td>
-				<td>随便一个名称</td>
-				<td>小小</td>
-				<td>潮科技</td>
-				<td class="text-center">2016/10/07</td>
-				<td class="text-center">已发布</td>
-				<td class="text-center">
-					<a href="javascript:;" class="btn btn-default btn-xs">编辑</a>
-					<a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
-				</td>
-			</tr>
+			<?php if (!empty($posts)): ?>
+				<?php foreach ($posts as $item): ?>
+					<tr>
+						<td class="text-center"><input type="checkbox"></td>
+						<!-- 随便一个名称	 小小 潮科技 2016/10/07 已发布 -->
+						<td><?php echo $item['title']; ?></td>
+						<td><?php echo $item['user_name']; ?></td>
+						<td><?php echo $item['category_name']; ?></td>
+						<td class="text-center"><?php echo convert_time($item['created']); ?></td>
+						
+						<td class="text-center"><?php echo convert_status($item['status']); ?></td>
+						<td class="text-center">
+							<a href="javascript:;" class="btn btn-default btn-xs">编辑</a>
+							<a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
+						</td>
+					</tr>
+				<?php endforeach ?>
+			<?php endif ?>
 		</tbody>
 	</table>
 </div>
