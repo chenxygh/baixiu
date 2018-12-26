@@ -6,7 +6,6 @@ require_once '../functions.php';
 // 获取id
 
 function getid () {
-	// 单个 id
 	if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 		if (empty($_GET['id'])) {
 			exit('请正确删除');			
@@ -14,15 +13,9 @@ function getid () {
 
 		return $_GET['id'];
 	}
-
-	// 多个 id
-	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-		if (empty($_POST['checkbox'])) {
-			exit('请正确删除');			
-		}
-		return join(',', $_POST['checkbox']);
-	}
 }
+
+// 解决 sql 注入，可以使用正则表达式，设置过滤函数
 
 $id = getid();
 

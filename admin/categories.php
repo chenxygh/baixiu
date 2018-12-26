@@ -79,7 +79,7 @@ $categories = xiu_select_all('select * from categories;');
 				<div class="col-md-8">
 					<div class="page-action">
 						<!-- show when multiple checked -->
-						<a class="btn btn-danger btn-sm" href="javascript:void(0);" style="display: none" id="delAll">批量删除</a>
+						<a class="btn btn-danger btn-sm" href="/admin/categories_del.php" style="display: none" id="del_all">批量删除</a>
 					</div>
 					<table class="table table-striped table-bordered table-hover">
 						<thead>
@@ -91,21 +91,19 @@ $categories = xiu_select_all('select * from categories;');
 							</tr>
 						</thead>
 						<tbody>
-							<form action="/admin/categories_del.php" method="post" id="cbFormId">
-								<?php if (!empty($categories)): ?>
-									<?php foreach ($categories as $item): ?>
-										<tr>
-											<td class="text-center"><input type="checkbox" name="checkbox[]" value="<?php echo $item['id']; ?>"></td>
-											<td><?php echo $item['name'] ?></td>
-											<td><?php echo $item['slug'] ?></td>
-											<td class="text-center">
-												<a href="javascript:;" class="btn btn-info btn-xs">编辑</a>
-												<a href="/admin/categories_del.php?id=<?php echo $item['id']; ?>" class="btn btn-danger btn-xs">删除</a>
-											</td>
-										</tr>
-									<?php endforeach ?>
-								<?php endif ?>
-							</form>
+							<?php if (!empty($categories)): ?>
+								<?php foreach ($categories as $item): ?>
+									<tr>
+										<td class="text-center"><input type="checkbox" data-id="<?php echo $item['id']; ?>"></td>
+										<td><?php echo $item['name'] ?></td>
+										<td><?php echo $item['slug'] ?></td>
+										<td class="text-center">
+											<a href="javascript:;" class="btn btn-info btn-xs">编辑</a>
+											<a href="/admin/categories_del.php?id=<?php echo $item['id']; ?>" class="btn btn-danger btn-xs">删除</a>
+										</td>
+									</tr>
+								<?php endforeach ?>
+							<?php endif ?>
 						</tbody>
 					</table>
 				</div>
@@ -120,30 +118,39 @@ $categories = xiu_select_all('select * from categories;');
 	<script>NProgress.done()</script>
 	<script>
 		$(function ($) {
-			function delAllDisplay (checkedLen) {
-				if (checkedLen) $('#delAll').fadeIn();
-				else $('#delAll').fadeOut();
-			}
-
 			var cbAll = $('#J_cbAll');
 			var cbs = $('tbody :checkbox');
+			var delAll = $('#del_all');
+
 			cbAll.bind('change', function () {
 				cbs.prop({checked: cbAll.prop('checked')});
-
-				var checkedLen = $('tbody :checked').length;
-				delAllDisplay(checkedLen);
+				cbs.triggerHandler('change');
 			});
+
 			cbs.bind('change', function () {
-				var checkedLen = $('tbody :checked').length;
+				var checkedBox = $('tbody :checked');
 
-				cbAll.prop({checked: checkedLen === cbs.length});
+				cbAll.prop({checked: checkedBox.length === cbs.length});
 
-				delAllDisplay(checkedLen);
-			});
+				checkedBox.length? delAll.fadeIn(): delAll.fadeOut();
 
-			$('#delAll').bind('click', function () {
-				$('#cbFormId').submit();
-				return false;
+				var temp = [];
+				checkedBox.each(function () {
+					/**
+					 * h5 中的新特性，标签属性中 加 data- 前缀的，会在对应 DOM 对象中有一个 dataset 属性来存放
+					 * 比如，这里，原生 js 可以 this.dataset['id'], 获取的是 字符串
+					 * jQuery $(this).data('id')， 获取的是有格式的，比如是 num
+					 *
+					 * console.log(this.dataset['id']);// str 类型
+					 * console.log($(this).data('id'));// num 类型
+					 */
+					temp.push($(this).data('id'));
+				});
+				var data = temp.join(',');
+				/**
+				 * a 标签的 DOM 对象对应的有一个 search 属性，可以通过这个属性，设置 url 中的一些参数（网站路径后面）
+				 */
+				delAll.prop('search', '?id=' + data);
 			});
 		});
 	</script>

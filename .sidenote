@@ -2,8 +2,16 @@
 实际上，任何元素都可以触发表单提交，只要调用 form元素.submit() 方法即可
 jQuery 和 原生 js 差不多，没有过多研究
 
+
+
+
+
 通过 a 标签发送 post 请求
 实际上，还是一个道理，任何都可以，通过 ajax 即可（一般不可跨源）
+
+
+
+
 
 sql 注入
 
@@ -18,3 +26,36 @@ is_numeric($_GET['id'])
 实际上，这种注入方式还是针对于 delete from categories where id = $id;
 而下面的方式，这种注入就无法成功
 delete from categories where id in ({$id});
+
+解决 sql 注入，可以使用正则表达式，设置过滤函数，这是一般比较常用的做法
+
+
+
+
+
+attr 和 prop
+attr 获取的是 html 元素属性
+prop 获取的是 DOM 对象属性
+
+
+
+
+
+h5 中，html 元素的自定义属性，加上 data-前缀
+那么在 DOM 对象中，会有 dataset 属性，里面存放的是该标签的加 data- 前缀的自定义属性
+原生 js ，可以直接访问 dataset 属性获取自定义属性，获取的是字符串
+jQuery 可以通过 data(自定义属性名) 获取，得到的是带格式的，比如数字
+
+
+
+
+
+trigger 和 triggerHandler
+triggerHandle 不会触发原始行为，不会在 DOM 树中冒泡，只会影响第一个匹配元素
+http://www.w3school.com.cn/jquery/event_triggerhandler.asp
+
+
+
+
+
+a 标签对应的 DOM 对象有一个 search 属性，可以设置 url 中网站路径后面的参数
