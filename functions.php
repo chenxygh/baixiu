@@ -36,7 +36,7 @@ function xiu_query ($sql) {
  * @return [type] [description]
  */
 function xiu_get_current_user () {
-	session_start();
+	@session_start();
 
 	if (empty($_SESSION['current_user'])) {
 		header('Location: /admin/login.php');

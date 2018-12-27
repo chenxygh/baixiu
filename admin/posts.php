@@ -25,27 +25,32 @@ function convert_time ($created) {
 	return date('Y年m月d日<b\r/>H:i:s', strtotime($created));
 }
 
-// /**
-//  * 通过 user_id 获取 nickname
-//  * @param  [type] $user_id [description]
-//  * @return [type]          [description]
-//  */
+/**
+ * 通过 user_id 获取 nickname
+ * @param  [type] $user_id [description]
+ * @return [type]          [description]
+ */
 // function convert_nickname ($user_id) {
 // 	$nickname = xiu_select_one("select nickname from users where id={$user_id} limit 1;");
 // 	return $nickname? $nickname['nickname']: '未知';
 // }
 
-// /**
-//  * 通过 category_id 获取分类名称
-//  * @param  [type] $category_id [description]
-//  * @return [type]              [description]
-//  */
+/**
+ * 通过 category_id 获取分类名称
+ * @param  [type] $category_id [description]
+ * @return [type]              [description]
+ */
 // function convert_category ($category_id) {
 // 	$name = xiu_select_one("select name from categories where id={$category_id} limit 1;");
 // 	return $name? $name['name']: '未知';
 // }
 
-$select = 'select
+$page = empty($_GET['page'])? 1: (int)$_GET['page'];
+$size = 10;
+$offset = ($page - 1) * $size;
+
+$select = 
+"select
 	posts.id,
 	posts.title,
 	users.nickname as user_name,
@@ -54,7 +59,9 @@ $select = 'select
 	posts.`status`
 from posts
 inner join categories on posts.category_id = categories.id
-inner join users on posts.user_id = users.id;';
+inner join users on posts.user_id = users.id
+order by posts.created desc
+limit {$offset}, {$size};";
 
 $posts = xiu_select_all($select);
 
