@@ -36,7 +36,7 @@ function xiu_query ($sql) {
  * @return [type] [description]
  */
 function xiu_get_current_user () {
-	session_start();
+	@session_start();
 
 	if (empty($_SESSION['current_user'])) {
 		header('Location: /admin/login.php');
@@ -110,4 +110,14 @@ function xiu_execute ($sql) {
 	mysqli_close($conn);
 	
 	return $affected_rows;
+}
+
+/**
+ * 重定向，实现页面跳转，且不继续执行之下的代码
+ * @param  跳转目的地，字符串形式
+ * @return 没有返回值
+ */
+function xiu_redirect ($url) {
+	header('Location: ' . $url);
+	exit();
 }

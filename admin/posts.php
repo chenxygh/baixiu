@@ -4,7 +4,7 @@
 
 require_once '../functions.php';
 
-/* ===================== 数据格式转换 =============== */
+/* ============================== 数据格式转换 ============================= */
 
 /**
  * 转换状态显示
@@ -25,27 +25,74 @@ function convert_time ($created) {
 	return date('Y年m月d日<b\r/>H:i:s', strtotime($created));
 }
 
-// /**
-//  * 通过 user_id 获取 nickname
-//  * @param  [type] $user_id [description]
-//  * @return [type]          [description]
-//  */
+/**
+ * 通过 user_id 获取 nickname
+ * @param  [type] $user_id [description]
+ * @return [type]          [description]
+ */
 // function convert_nickname ($user_id) {
 // 	$nickname = xiu_select_one("select nickname from users where id={$user_id} limit 1;");
 // 	return $nickname? $nickname['nickname']: '未知';
 // }
 
-// /**
-//  * 通过 category_id 获取分类名称
-//  * @param  [type] $category_id [description]
-//  * @return [type]              [description]
-//  */
+/**
+ * 通过 category_id 获取分类名称
+ * @param  [type] $category_id [description]
+ * @return [type]              [description]
+ */
 // function convert_category ($category_id) {
 // 	$name = xiu_select_one("select name from categories where id={$category_id} limit 1;");
 // 	return $name? $name['name']: '未知';
 // }
 
-$select = 'select
+
+
+/* ============================== 分页参数计算 ============================= */
+
+$page = empty($_GET['page'])? 1: (int)$_GET['page'];
+
+// 页码请求的合理性
+$page < 1? xiu_redirect("/admin/posts.php?page=1"): false;// 页码请求过小，就跳转到第一页
+
+$size = 10;
+$offset = ($page - 1) * $size;
+
+
+/* ============================== 页码显示计算 ============================= */
+
+$total_res = xiu_select_one("select
+	count(1) as cnt
+from posts
+inner join categories on posts.category_id = categories.id
+inner join users on posts.user_id = users.id
+");
+
+// 获取总页数
+$total_cnt = $total_res? (int)$total_res['cnt']: 0;// 没有查询到或者有问题的时候，条数为 0
+$page_total = (int)ceil($total_cnt / $size);// 向上取整，获取总页数, 注意，ceil 的返回值是 float 类型
+$page_total = $page_total <= 0? 1: $page_total;// 异常情况，总页数为 1
+
+// 页码请求的合理性
+$page > $page_total? xiu_redirect("/admin/posts.php?page={$page_total}"): false;// 页码请求过大，就跳转到最后一页
+
+// 显示长度 和 左右跨度 的计算
+$length = $page_total > 5? 5: $page_total;// 显示长度, 不到总页数的时候，只显示总页数
+$region = (int)($length / 2);// 向 0 取整, 左右跨度
+
+// 起始点的计算
+$start = $page - $region;
+$start = $start < 1? 1: $start;// 过小调整
+$start = $start + $length - 1 > $page_total? $page_total - $length + 1: $start;// 上边界显示调整
+
+// 结束点的计算
+$end = $page + $region;
+$end = $end > $page_total? $page_total: $end;// 过大调整
+$end = $end - $length + 1 < 1? $length: $end;// 下边界显示调整
+
+
+/* ============================== 获取全部数据 ============================= */
+
+$posts = xiu_select_all("select
 	posts.id,
 	posts.title,
 	users.nickname as user_name,
@@ -54,9 +101,9 @@ $select = 'select
 	posts.`status`
 from posts
 inner join categories on posts.category_id = categories.id
-inner join users on posts.user_id = users.id;';
-
-$posts = xiu_select_all($select);
+inner join users on posts.user_id = users.id
+order by posts.created desc
+limit {$offset}, {$size};");
 
 ?>
 
@@ -102,9 +149,9 @@ $posts = xiu_select_all($select);
 		</form>
 		<ul class="pagination pagination-sm pull-right">
 			<li><a href="#">上一页</a></li>
-			<li><a href="#">1</a></li>
-			<li><a href="#">2</a></li>
-			<li><a href="#">3</a></li>
+			<?php for ($i = $start; $i <= $end; $i++) : ?>
+				<li<?php echo $i === $page? ' class="active"': ''; ?>><a href="?page=<?php echo $i; ?>"><?php echo $i; ?></a></li>
+			<?php endfor ?>
 			<li><a href="#">下一页</a></li>
 		</ul>
 	</div>
