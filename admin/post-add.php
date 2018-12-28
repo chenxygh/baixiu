@@ -31,7 +31,9 @@
 			</div>
 			<div class="form-group">
 				<label for="content">标题</label>
-				<textarea id="content" class="form-control input-lg" name="content" cols="30" rows="10" placeholder="内容"></textarea>
+				<script id="content" type="text/plain" name="content">
+					start
+				</script>
 			</div>
 		</div>
 		<div class="col-md-3">
@@ -76,6 +78,20 @@
 
 <script src="/static/assets/vendors/jquery/jquery.js"></script>
 <script src="/static/assets/vendors/bootstrap/js/bootstrap.js"></script>
+<script src="/static/assets/vendors/ueditor/ueditor.config.js"></script>
+<script src="/static/assets/vendors/ueditor/ueditor.all.js"></script>
 <script>NProgress.done()</script>
+<script>
+	$(function ($) {
+		var ue = UE.getEditor('content', {
+			autoHeight: false,
+			toolbars: [
+			['fullscreen', 'source', 'undo', 'redo'],
+			['bold', 'italic', 'underline', 'fontborder', 'strikethrough', 'superscript', 'subscript', 'removeformat', 'formatmatch', 'autotypeset', 'blockquote', 'pasteplain', '|', 'forecolor', 'backcolor', 'insertorderedlist', 'insertunorderedlist', 'selectall', 'cleardoc']
+			],
+			initialFrameHeight: 333
+		});
+	});
+</script>
 </body>
 </html>
