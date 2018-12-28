@@ -25,10 +25,11 @@ if ($affected_rows <= 0) {
 }
 
 /* ================= 原来页面状态的保持 ================ */
-$search = '';
-$search .= empty($_GET['page'])? 'page=1': 'page=' . $_GET['page'];
-$search .= empty($_GET['category'])? '': '&category=' . $_GET['category'];
-$search .= empty($_GET['status'])? '': '&status=' . $_GET['status'];
+// $search = '';
+// $search .= empty($_GET['page'])? 'page=1': 'page=' . $_GET['page'];
+// $search .= empty($_GET['category'])? '': '&category=' . $_GET['category'];
+// $search .= empty($_GET['status'])? '': '&status=' . $_GET['status'];
 
 // 一切 OK，跳转回 posts.php
-xiu_redirect('/admin/posts.php?' . $search);
+// http 中的 referer 记录的是发出请求的来源
+xiu_redirect($_SERVER['HTTP_REFERER']);

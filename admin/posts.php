@@ -206,7 +206,7 @@ $categories = xiu_select_all('select * from categories;');
 						<td class="text-center"><?php echo convert_status($item['status']); ?></td>
 						<td class="text-center">
 							<a href="javascript:;" class="btn btn-default btn-xs">编辑</a>
-							<a href="/admin/posts_del.php?id=<?php echo $item['id'] . $search; ?>" class="btn btn-danger btn-xs">删除</a>
+							<a href="/admin/posts_del.php?id=<?php echo $item['id']; ?>" class="btn btn-danger btn-xs">删除</a>
 						</td>
 					</tr>
 				<?php endforeach ?>
@@ -245,7 +245,7 @@ $categories = xiu_select_all('select * from categories;');
 				});
 				var data = temp.join(',');
 
-				delAll.prop('search', '?id=' + data + "<?php echo $search; ?>");
+				delAll.prop('search', '?id=' + data);
 			});
 		});
 	</script>
