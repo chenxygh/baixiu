@@ -111,3 +111,13 @@ function xiu_execute ($sql) {
 	
 	return $affected_rows;
 }
+
+/**
+ * 重定向，实现页面跳转，且不继续执行之下的代码
+ * @param  跳转目的地，字符串形式
+ * @return 没有返回值
+ */
+function xiu_redirect ($url) {
+	header('Location: ' . $url);
+	exit();
+}
