@@ -51,11 +51,26 @@ function convert_time ($created) {
 
 $page = empty($_GET['page'])? 1: (int)$_GET['page'];
 
-// 页码请求的合理性
-$page < 1? xiu_redirect("/admin/posts.php?page=1"): false;// 页码请求过小，就跳转到第一页
-
 $size = 10;
 $offset = ($page - 1) * $size;
+
+
+/* ============================== 分类筛选处理 ============================= */
+
+$where = '1 = 1';
+$search = '';
+if (!empty($_GET['category']) && $_GET['category'] != '-1') {// 应该要加正则校验，这里不处理
+	$where .= " and categories.id = {$_GET['category']}";
+	$search .= '&category=' . $_GET['category'];
+}
+
+
+/* ============================== 状态筛选处理 ============================= */
+
+if (!empty($_GET['status']) && $_GET['status'] != '-1') {
+	$where .= " and posts.`status` = '{$_GET['status']}'";
+	$search .= '&status=' . $_GET['status'];
+}
 
 
 /* ============================== 页码显示计算 ============================= */
@@ -65,6 +80,7 @@ $total_res = xiu_select_one("select
 from posts
 inner join categories on posts.category_id = categories.id
 inner join users on posts.user_id = users.id
+where {$where}
 ");
 
 // 获取总页数
@@ -73,7 +89,8 @@ $page_total = (int)ceil($total_cnt / $size);// 向上取整，获取总页数, �
 $page_total = $page_total <= 0? 1: $page_total;// 异常情况，总页数为 1
 
 // 页码请求的合理性
-$page > $page_total? xiu_redirect("/admin/posts.php?page={$page_total}"): false;// 页码请求过大，就跳转到最后一页
+$page > $page_total? xiu_redirect("/admin/posts.php?page={$page_total}" . $search): false;// 页码请求过大，就跳转到最后一页
+$page < 1? xiu_redirect("/admin/posts.php?page=1" . $search): false;// 页码请求过小，就跳转到第一页
 
 // 显示长度 和 左右跨度 的计算
 $length = $page_total > 5? 5: $page_total;// 显示长度, 不到总页数的时候，只显示总页数
@@ -102,8 +119,13 @@ $posts = xiu_select_all("select
 from posts
 inner join categories on posts.category_id = categories.id
 inner join users on posts.user_id = users.id
+where {$where}
 order by posts.created desc
 limit {$offset}, {$size};");
+
+
+/* ============================== 获取分类数据 ============================= */
+$categories = xiu_select_all('select * from categories;');
 
 ?>
 
@@ -134,23 +156,26 @@ limit {$offset}, {$size};");
 	</div> -->
 	<div class="page-action">
 		<!-- show when multiple checked -->
-		<a class="btn btn-danger btn-sm" href="javascript:;" style="display: none">批量删除</a>
-		<form class="form-inline">
-			<select name="" class="form-control input-sm">
-				<option value="">所有分类</option>
-				<option value="">未分类</option>
+		<a class="btn btn-danger btn-sm" href="/admin/posts_del.php" style="display: none" id="del_all">批量删除</a>
+		<form class="form-inline" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+			<select name="category" class="form-control input-sm">
+				<option value="-1">所有分类</option>
+				<?php foreach ($categories as $item): ?>
+					<option value="<?php echo $item['id']; ?>"<?php echo !empty($_GET['category']) && $_GET['category'] === $item['id']? ' selected': ''; ?>><?php echo $item['name']; ?></option>
+				<?php endforeach ?>
 			</select>
-			<select name="" class="form-control input-sm">
-				<option value="">所有状态</option>
-				<option value="">草稿</option>
-				<option value="">已发布</option>
+			<select name="status" class="form-control input-sm">
+				<option value="-1">所有状态</option>
+				<option value="drafted"<?php echo !empty($_GET['status']) && $_GET['status'] === 'drafted'? ' selected': ''; ?>>草稿</option>
+				<option value="published"<?php echo !empty($_GET['status']) && $_GET['status'] === 'published'? ' selected': ''; ?>>已发布</option>
+				<option value="trashed"<?php echo !empty($_GET['status']) && $_GET['status'] === 'trashed'? ' selected': ''; ?>>回收站</option>
 			</select>
 			<button class="btn btn-default btn-sm">筛选</button>
 		</form>
 		<ul class="pagination pagination-sm pull-right">
 			<li><a href="#">上一页</a></li>
 			<?php for ($i = $start; $i <= $end; $i++) : ?>
-				<li<?php echo $i === $page? ' class="active"': ''; ?>><a href="?page=<?php echo $i; ?>"><?php echo $i; ?></a></li>
+				<li<?php echo $i === $page? ' class="active"': ''; ?>><a href="?page=<?php echo $i . $search; ?>"><?php echo $i; ?></a></li>
 			<?php endfor ?>
 			<li><a href="#">下一页</a></li>
 		</ul>
@@ -158,7 +183,7 @@ limit {$offset}, {$size};");
 	<table class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
-				<th class="text-center" width="40"><input type="checkbox"></th>
+				<th class="text-center" width="40"><input type="checkbox" id="J_cbAll"></th>
 				<th>标题</th>
 				<th>作者</th>
 				<th>分类</th>
@@ -171,7 +196,7 @@ limit {$offset}, {$size};");
 			<?php if (!empty($posts)): ?>
 				<?php foreach ($posts as $item): ?>
 					<tr>
-						<td class="text-center"><input type="checkbox"></td>
+						<td class="text-center"><input type="checkbox" data-id="<?php echo $item['id']; ?>"></td>
 						<!-- 随便一个名称	 小小 潮科技 2016/10/07 已发布 -->
 						<td><?php echo $item['title']; ?></td>
 						<td><?php echo $item['user_name']; ?></td>
@@ -181,7 +206,7 @@ limit {$offset}, {$size};");
 						<td class="text-center"><?php echo convert_status($item['status']); ?></td>
 						<td class="text-center">
 							<a href="javascript:;" class="btn btn-default btn-xs">编辑</a>
-							<a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
+							<a href="/admin/posts_del.php?id=<?php echo $item['id'] . $search; ?>" class="btn btn-danger btn-xs">删除</a>
 						</td>
 					</tr>
 				<?php endforeach ?>
@@ -196,5 +221,33 @@ limit {$offset}, {$size};");
 <script src="/static/assets/vendors/jquery/jquery.js"></script>
 <script src="/static/assets/vendors/bootstrap/js/bootstrap.js"></script>
 <script>NProgress.done()</script>
+<script>
+		$(function ($) {
+			var cbAll = $('#J_cbAll');
+			var cbs = $('tbody :checkbox');
+			var delAll = $('#del_all');
+
+			cbAll.bind('change', function () {
+				cbs.prop({checked: cbAll.prop('checked')});
+				cbs.triggerHandler('change');
+			});
+
+			cbs.bind('change', function () {
+				var checkedBox = $('tbody :checked');
+
+				cbAll.prop({checked: checkedBox.length === cbs.length});
+
+				checkedBox.length? delAll.fadeIn(): delAll.fadeOut();
+
+				var temp = [];
+				checkedBox.each(function () {
+					temp.push($(this).data('id'));
+				});
+				var data = temp.join(',');
+
+				delAll.prop('search', '?id=' + data + "<?php echo $search; ?>");
+			});
+		});
+	</script>
 </body>
 </html>

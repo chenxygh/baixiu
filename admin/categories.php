@@ -49,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // select 总是在 增删改 之后，这样可以保持数据的最新
+// 获取分类数据
 $categories = xiu_select_all('select * from categories;');
 
 ?>
