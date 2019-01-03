@@ -47,11 +47,11 @@
 				<th>评论在</th>
 				<th>提交于</th>
 				<th>状态</th>
-				<th class="text-center" width="100">操作</th>
+				<th class="text-center" width="150">操作</th>
 			</tr>
 		</thead>
 		<tbody>
-			<tr class="danger">
+			<!-- <tr class="danger">
 				<td class="text-center"><input type="checkbox"></td>
 				<td>大大</td>
 				<td>楼主好人，顶一个</td>
@@ -62,31 +62,7 @@
 					<a href="post-add.html" class="btn btn-info btn-xs">批准</a>
 					<a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
 				</td>
-			</tr>
-			<tr>
-				<td class="text-center"><input type="checkbox"></td>
-				<td>大大</td>
-				<td>楼主好人，顶一个</td>
-				<td>《Hello world》</td>
-				<td>2016/10/07</td>
-				<td>已批准</td>
-				<td class="text-center">
-					<a href="post-add.html" class="btn btn-warning btn-xs">驳回</a>
-					<a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
-				</td>
-			</tr>
-			<tr>
-				<td class="text-center"><input type="checkbox"></td>
-				<td>大大</td>
-				<td>楼主好人，顶一个</td>
-				<td>《Hello world》</td>
-				<td>2016/10/07</td>
-				<td>已批准</td>
-				<td class="text-center">
-					<a href="post-add.html" class="btn btn-warning btn-xs">驳回</a>
-					<a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
-				</td>
-			</tr>
+			</tr> -->
 		</tbody>
 	</table>
 </div>
@@ -96,6 +72,38 @@
 
 <script src="/static/assets/vendors/jquery/jquery.js"></script>
 <script src="/static/assets/vendors/bootstrap/js/bootstrap.js"></script>
+<script src="/static/assets/vendors/jsrender/jsrender.js"></script>
+<script type="text/x-jsrender" id="comments_tmpl">
+	{{for comments}}
+	<tr{{if status === 'rejected'}} class="danger"{{else status === 'held'}} class="warning"{{/if}}>
+		<td class="text-center"><input type="checkbox"></td>
+		<td>{{:author}}</td>
+		<td>{{:content}}</td>
+		<td>《{{:post_title}}》</td>
+		<td>{{:created}}</td>
+		<td>{{:status}}</td>
+		<td class="text-center">
+			{{if status === 'held'}}
+			<a href="post-add.html" class="btn btn-info btn-xs">批准</a>
+			<a href="post-add.html" class="btn btn-warning btn-xs">拒绝</a>
+			{{/if}}
+			<a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
+		</td>
+	</tr>
+	{{/for}}
+</script>
+<script>
+	$(function ($) {
+		// 发送 ajax 请求获取 json 数据
+		$.getJSON('/admin/api/comments.php', {}, function (res) {
+			console.log(res);
+			// 模板引擎渲染到页面
+			var html = $('#comments_tmpl').render({comments: res});
+			console.log(html);
+			$('tbody').html(html);
+		});
+	});
+</script>
 <script>NProgress.done()</script>
 </body>
 </html>
