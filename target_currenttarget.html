@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+	#uu {
+		background-color: pink;
+	}
+	</style>
+</head>
+<body>
+	<button id="btn">add</button>
+	<ul id="uu"></ul>
+	<script src="/static/assets/vendors/jquery/jquery.js"></script>
+	<script>
+		/* =============== 原生 js 的事件委托实现 =============== */
+		window.addEventListener('load', function () {
+			var ulObj = document.getElementById('uu');
+
+			btn.addEventListener('click', function (event) {
+				var liObj = document.createElement('li');
+				ulObj.appendChild(liObj);
+				liObj.innerHTML = 'li';
+				liObj.style.backgroundColor = 'purple';
+
+				var spanObj = document.createElement('span');
+				liObj.appendChild(spanObj);
+				spanObj.innerHTML = 'span';
+				spanObj.style.display = 'block';
+				spanObj.style.backgroundColor = 'green';
+
+				var aObj = document.createElement('a');
+				spanObj.appendChild(aObj);
+				aObj.innerHTML = 'a';
+				aObj.style.display = 'block';
+				aObj.style.backgroundColor = 'red';
+			}, false);
+
+			// 原生 js 实现事件委托
+			// 利用 target ，target 是目标阶段的元素
+			// currentTarget, 是监听事件的元素
+			ulObj.addEventListener('click', function (event) {
+				console.log('currentTarget', event.currentTarget);
+				console.log('target', event.target);
+				console.log(event.target.nodeName);
+
+				// if (event.target.nodeName === 'LI') ulObj.removeChild(event.target);
+				
+				// 如 li 下 还有 span 和 a 的时候，希望点击 span 和 a 也能删除 li
+				var ele = event.target;
+				while (ele.nodeName !== 'LI') {
+					if (ele.nodeName === 'UL') {// 最多到 currentTarget 为止，不再回溯
+						ele = null;
+						break;
+					}
+					ele = ele.parentNode;
+				}// 跳出循环，ele 为 null 或者 ele.nodeName === 'UL'
+				ele && ulObj.removeChild(ele);
+			}, false);
+		}, false);
+
+		/* =============== jQuery 的 on 方法 =============== */
+		$(function ($) {
+			var ulObj = $('#uu');
+
+			$(btn).on('click', function (event) {
+				var liObj = $('<li>li</li>');
+				ulObj.append(liObj);
+				liObj.css({backgroundColor: 'purple'});
+
+				var spanObj = $('<span>span</span>');
+				liObj.append(spanObj);
+				spanObj
+					.css({display: 'block', backgroundColor: 'green'})
+					.on('click', function (event) {
+						console.log('============ span ===========');
+						console.log('span-currentTarget', event.currentTarget);
+						console.log('span-target', event.target);
+						console.log(event.target.nodeName);
+					});
+
+				var aObj = $('<a>a</a>');
+				spanObj.append(aObj);			
+				aObj.css({display: 'block', backgroundColor: 'red'});
+			});
+
+			// jquery 里面的 childSelector, 选择的是 后代中的元素
+			// 如果不填 或者为 null， 那么每次该元素发生事件的时候都会执行事件处理函数， 是为 直接事件， 这个时候，本身是 curentTarget
+			// 当第二个参数 childSelector 存在的时候，当前本身不会有事件的注册，而符合 childSelector 的选择的所有元素，会有事件注册，是为 委托事件，这个时候，符合的元素皆是 currentTarget，即 注册了事件的元素
+			// 而委托事件的顺序 似乎是在 直接事件的顺序之后，这里是这样的，可能有其他因素干扰，暂不管
+			$('#uu').on('click', 'span', function (event) {
+				console.log('============ ul ===========');
+				console.log('ul-currentTarget', event.currentTarget);
+				console.log('ul-target', event.target);
+				console.log(event.target.nodeName);
+			});
+		});
+
+		/**
+		 * 小结：
+		 * 
+		 * 原生 js ，实现事件委托，是利用 event.target 来实现
+		 * 注意嵌套元素的问题，要适当判断处理
+		 *
+		 * jQuery 的 on方法，可以很方便的实现事件委托
+		 * 注意第二个参数的设置
+		 * 第二个参数是后代元素的选择器，设置了以后，当前本身元素不再注册事件
+		 * 而被选择的后代元素，会被注册事件，成为 currentTarget
+		 *
+		 *
+		 * target:
+		 * 指的是处于事件目标阶段的那个元素
+		 *
+		 * currentTarget:
+		 * 指的是注册了事件的那个元素
+		 *
+		 *
+		 * 参考资料:
+		 * https://www.jianshu.com/p/1dd668ccc97a
+		 * https://www.jianshu.com/p/ac47521806d2
+		 * http://www.runoob.com/jquery/event-on.html
+		 * http://api.jquery.com/on/
+		 *
+		 * 
+		 */
+</script>
+</body>
+</html>
