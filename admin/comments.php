@@ -8,6 +8,75 @@
 	<link rel="stylesheet" href="/static/assets/vendors/font-awesome/css/font-awesome.css">
 	<link rel="stylesheet" href="/static/assets/vendors/nprogress/nprogress.css">
 	<link rel="stylesheet" href="/static/assets/css/admin.css">
+	<style>
+	#loading {
+		display: flex;
+		position: fixed;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		right: 0;
+		z-index: 999;
+		justify-content: center;
+		align-items: center;
+		background-color: rgba(0, 0, 0, .5);
+	}
+
+	.flip-txt-loading {
+		font: 26px Monospace;
+		letter-spacing: 5px;
+		color: #fff;
+	}
+
+	.flip-txt-loading > span {
+		animation: flip-txt  2s infinite;
+		display: inline-block;
+		transform-origin: 50% 50% -10px;
+		transform-style: preserve-3d;
+	}
+
+	.flip-txt-loading > span:nth-child(1) {
+		-webkit-animation-delay: 0.10s;
+		animation-delay: 0.10s;
+	}
+
+	.flip-txt-loading > span:nth-child(2) {
+		-webkit-animation-delay: 0.20s;
+		animation-delay: 0.20s;
+	}
+
+	.flip-txt-loading > span:nth-child(3) {
+		-webkit-animation-delay: 0.30s;
+		animation-delay: 0.30s;
+	}
+
+	.flip-txt-loading > span:nth-child(4) {
+		-webkit-animation-delay: 0.40s;
+		animation-delay: 0.40s;
+	}
+
+	.flip-txt-loading > span:nth-child(5) {
+		-webkit-animation-delay: 0.50s;
+		animation-delay: 0.50s;
+	}
+
+	.flip-txt-loading > span:nth-child(6) {
+		-webkit-animation-delay: 0.60s;
+		animation-delay: 0.60s;
+	}
+
+	.flip-txt-loading > span:nth-child(7) {
+		-webkit-animation-delay: 0.70s;
+		animation-delay: 0.70s;
+	}
+
+	@keyframes flip-txt  {
+		to {
+			-webkit-transform: rotateX(1turn);
+			transform: rotateX(1turn);
+		}
+	}
+	</style>
 	<script src="/static/assets/vendors/nprogress/nprogress.js"></script>
 </head>
 <body>
@@ -30,21 +99,15 @@
 			<button class="btn btn-warning btn-sm">批量拒绝</button>
 			<button class="btn btn-danger btn-sm">批量删除</button>
 		</div>
-		<ul class="pagination pagination-sm pull-right">
-			<li><a href="#">上一页</a></li>
-			<li><a href="#">1</a></li>
-			<li><a href="#">2</a></li>
-			<li><a href="#">3</a></li>
-			<li><a href="#">下一页</a></li>
-		</ul>
+		<ul class="pagination pagination-sm pull-right"></ul>
 	</div>
 	<table class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
 				<th class="text-center" width="40"><input type="checkbox"></th>
-				<th>作者</th>
+				<th width="50">作者</th>
 				<th>评论</th>
-				<th>评论在</th>
+				<th width="120">评论在</th>
 				<th>提交于</th>
 				<th>状态</th>
 				<th class="text-center" width="150">操作</th>
@@ -70,38 +133,74 @@
 
 <?php include 'inc/sidebar.php'; ?>
 
-<script src="/static/assets/vendors/jquery/jquery.js"></script>
-<script src="/static/assets/vendors/bootstrap/js/bootstrap.js"></script>
-<script src="/static/assets/vendors/jsrender/jsrender.js"></script>
+<div id="loading" style="display: none;">
+	<div class="flip-txt-loading">
+		<span>L</span><span>o</span><span>a</span><span>d</span><span>i</span><span>n</span><span>g</span>
+	</div> 
+</div> 
+
 <script type="text/x-jsrender" id="comments_tmpl">
 	{{for comments}}
 	<tr{{if status === 'rejected'}} class="danger"{{else status === 'held'}} class="warning"{{/if}}>
-		<td class="text-center"><input type="checkbox"></td>
-		<td>{{:author}}</td>
-		<td>{{:content}}</td>
-		<td>《{{:post_title}}》</td>
-		<td>{{:created}}</td>
-		<td>{{:status}}</td>
-		<td class="text-center">
-			{{if status === 'held'}}
-			<a href="post-add.html" class="btn btn-info btn-xs">批准</a>
-			<a href="post-add.html" class="btn btn-warning btn-xs">拒绝</a>
-			{{/if}}
-			<a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
-		</td>
-	</tr>
-	{{/for}}
+	<td class="text-center"><input type="checkbox"></td>
+	<td>{{:author}}</td>
+	<td>{{:content}}</td>
+	<td>《{{:post_title}}》</td>
+	<td>{{:created}}</td>
+	<td>{{:status}}</td>
+	<td class="text-center">
+		{{if status === 'held'}}
+		<a href="post-add.html" class="btn btn-info btn-xs">批准</a>
+		<a href="post-add.html" class="btn btn-warning btn-xs">拒绝</a>
+		{{/if}}
+		<a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
+	</td>
+</tr>
+{{/for}}
 </script>
+<script src="/static/assets/vendors/jquery/jquery.js"></script>
+<script src="/static/assets/vendors/bootstrap/js/bootstrap.js"></script>
+<script src="/static/assets/vendors/jsrender/jsrender.js"></script>
+<script src="/static/assets/vendors/twbs-pagination/jquery.twbsPagination.js"></script>
 <script>
+	// nprogress
+	$(document)
+		.ajaxStart(function () {
+			NProgress.start()
+			$('#loading').fadeIn()
+		})
+		.ajaxStop(function () {
+			NProgress.done()
+		})
+
 	$(function ($) {
-		// 发送 ajax 请求获取 json 数据
-		$.getJSON('/admin/api/comments.php', {}, function (res) {
-			console.log(res);
-			// 模板引擎渲染到页面
-			var html = $('#comments_tmpl').render({comments: res});
-			console.log(html);
-			$('tbody').html(html);
-		});
+		// 发送 ajax 请求获取 json 数据, 并通过 jsrender 渲染到页面上
+		function showPageData (page) {
+			$.getJSON('/admin/api/comments.php', {page: page}, function (res) {
+				// 模板引擎渲染到页面
+				var html = $('#comments_tmpl').render({comments: res['comments']});
+				$('tbody').fadeOut(function () {
+					$(this).html(html).fadeIn(function () {
+						$('#loading').fadeOut();
+					});
+				});
+				var totalPages = parseInt(res['total_pages']);
+
+				// ajax 是异步请求，用传统的返回 totalPages 的方式是不可行的
+				// twbsPagination 插件的使用
+				$('.pagination').twbsPagination({
+					totalPages: totalPages,
+					visiblePages: 5,
+					initiateStartPageClick: false,
+					onPageClick: function (event, page) {
+						// 默认页面初始化的时候也会执行一次，initiateStartPageClick: false 取消该功能
+						showPageData(page);
+					}
+				});
+			});
+		}
+
+		showPageData(1);
 	});
 </script>
 <script>NProgress.done()</script>
