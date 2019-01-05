@@ -141,7 +141,7 @@
 
 <script type="text/x-jsrender" id="comments_tmpl">
 	{{for comments}}
-	<tr{{if status === 'rejected'}} class="danger"{{else status === 'held'}} class="warning"{{/if}}>
+	<tr{{if status === 'rejected'}} class="danger"{{else status === 'held'}} class="warning"{{/if}} data-id="{{:id}}">
 	<td class="text-center"><input type="checkbox"></td>
 	<td>{{:author}}</td>
 	<td>{{:content}}</td>
@@ -153,7 +153,7 @@
 		<a href="post-add.html" class="btn btn-info btn-xs">批准</a>
 		<a href="post-add.html" class="btn btn-warning btn-xs">拒绝</a>
 		{{/if}}
-		<a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
+		<a href="javascript:;" class="btn btn-danger btn-xs btn-delete">删除</a>
 	</td>
 </tr>
 {{/for}}
@@ -171,25 +171,30 @@
 		})
 		.ajaxStop(function () {
 			NProgress.done()
+			$('#loading').fadeOut()
 		})
 
 	$(function ($) {
-		// 发送 ajax 请求获取 json 数据, 并通过 jsrender 渲染到页面上
+		var currentPage = 1;// 当前页面，默认为 1
+
+		/* =========== 发送 ajax 请求获取 json 数据, 并通过 jsrender 渲染到页面上 =========== */
 		function showPageData (page) {
 			$.getJSON('/admin/api/comments.php', {page: page}, function (res) {
-				// 模板引擎渲染到页面
-				var html = $('#comments_tmpl').render({comments: res['comments']});
-				$('tbody').fadeOut(function () {
-					$(this).html(html).fadeIn(function () {
-						$('#loading').fadeOut();
-					});
-				});
+				/* =========== 获取总页数 =========== */
 				var totalPages = parseInt(res['total_pages']);
+				if (page > totalPages) {// page 过大，跳到最后一页
+					showPageData(totalPages);
+					return;
+				}
+
+				currentPage = page;
 
 				// ajax 是异步请求，用传统的返回 totalPages 的方式是不可行的
-				// twbsPagination 插件的使用
+				/* =========== twbsPagination 插件的使用 =========== */
+				$('.pagination').twbsPagination('destroy');// 动态总页数的方式, 要先销毁
 				$('.pagination').twbsPagination({
 					totalPages: totalPages,
+					startPage: page,
 					visiblePages: 5,
 					initiateStartPageClick: false,
 					onPageClick: function (event, page) {
@@ -197,10 +202,28 @@
 						showPageData(page);
 					}
 				});
+
+				/* =========== 模板引擎渲染到页面 =========== */
+				var html = $('#comments_tmpl').render({comments: res['comments']});
+				$('tbody').fadeOut(function () {
+					$(this).html(html).fadeIn();
+				});
 			});
 		}
 
-		showPageData(1);
+		showPageData(currentPage);
+
+		// 根据 id 发送 ajax 请求，删除评论(重新渲染)
+		// 这里应该使用 事件委托，因为元素可能没有渲染到页面上
+		$('tbody').on('click', '.btn-delete', function (event) {
+			// 1. 获取 id，根据 id，发送 ajax 请求
+			var tr = $(this).parent().parent();
+			var id = tr.data('id');
+			$.getJSON('/admin/api/comments_del.php', {id: id}, function (res) {
+				// 2. 接收服务端返回信号, 根据信号，决定是否重新渲染当前评论页面
+				res? showPageData(currentPage): '';
+			})
+		});
 	});
 </script>
 <script>NProgress.done()</script>

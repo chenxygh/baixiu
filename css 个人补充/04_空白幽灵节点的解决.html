@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+	#container {
+		width: 900px;
+		height: 100px;
+		font-size: 0;
+	}
+	.item {
+		display: inline-block;
+		width: 300px;
+		height: 100px;
+		background-color: pink;
+		font-size: 20px;
+	}
+	.item:nth-child(2n+1) {
+		background-color: red;
+	}
+	</style>
+</head>
+<body>
+	<!-- 
+		实现一个盒子的三等分，可以使用 display: inline-block;
+		这样会成一行
+		但是由于之间的换行等空白节点的存在，行内或者行内块元素之间会有一点空隙
+		解决方法是，在父盒子上 font-size: 0;
+		然后在 子盒子上，重新设置 font-size 即可
+		https://www.zhangxinxu.com/wordpress/2015/08/css-deep-understand-vertical-align-and-line-height/
+	 -->
+	<div id="container">
+		<div class="item">12</div>
+		<div class="item">12</div>
+		<div class="item">12</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+	/**
+	 *
+	 * 老派做法，不使用 label
+	 * 把 input w100p h100p 铺开，然后 posa ，脱离文档流
+	 * 再 opacity: 0; 使看不到
+	 * 造成点击 span 的假象
+	 * 
+	 */
+	div {
+		width: 20px;
+		height: 20px;
+		position: relative;
+	}
+
+	input[type="checkbox"] {
+		opacity: 0;
+		position: absolute;
+		top: 0;
+		left: 0;
+	}
+
+	input[type="checkbox"] + span {
+		display: inline-block;
+		width: 100%;
+		height: 100%;
+		border-radius: 50%;
+		background-color: #c0c0c0;
+	}
+
+	input[type="checkbox"]:checked + span {
+		background-color: pink;
+	}
+
+	input[type="checkbox"]:checked + span::after {
+		content: "  ";
+		display: inline-block;
+		width: 10px;
+		height: 10px;
+		margin: 5px;
+		border-radius: 50%;
+		background-color: #fff;
+	}
+	</style>
+</head>
+<body>
+	<div>
+		<input type="checkbox">
+		<span></span>
+	</div>
+</body>
+</html>

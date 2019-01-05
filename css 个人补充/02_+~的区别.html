@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+	ul > li:first-child + li {/* + 选择后面一个 */
+		color: pink;
+	}
+
+	ul > li:first-child ~ li {/* ~ 选择后面所有 */
+		color: pink;
+	}
+	</style>
+</head>
+<body>
+	<ul>
+		<li>item 01</li>
+		<li>item 02</li>
+		<li>item 03</li>
+		<li>item 04</li>
+		<li>item 05</li>
+		<li>item 06</li>
+		<li>item 07</li>
+		<li>item 08</li>
+		<li>item 09</li>
+		<li>item 10</li>
+	</ul>
+</body>
+</html>

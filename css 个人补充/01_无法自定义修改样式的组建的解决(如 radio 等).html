@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+	input[type="checkbox"] {
+		display: none;
+	}
+
+	input[type="checkbox"] + span {
+		display: inline-block;
+		width: 20px;
+		height: 20px;
+		border-radius: 50%;
+		background-color: #c0c0c0;
+	}
+
+	input[type="checkbox"]:checked + span {
+		background-color: pink;
+	}
+
+	input[type="checkbox"]:checked + span::after {
+		content: "  ";
+		display: inline-block;
+		width: 10px;
+		height: 10px;
+		margin: 5px;
+		border-radius: 50%;
+		background-color: #fff;
+	}
+	</style>
+</head>
+<body>
+	<label>
+		<input type="checkbox">
+		<span></span>
+	</label>
+</body>
+</html>

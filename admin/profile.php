@@ -30,6 +30,7 @@
 				<label class="form-image">
 					<input id="avatar" type="file">
 					<img src="/static/assets/img/default.png">
+					<input type="hidden" name="avatar">
 					<i class="mask fa fa-upload"></i>
 				</label>
 			</div>
@@ -75,6 +76,39 @@
 
 <script src="/static/assets/vendors/jquery/jquery.js"></script>
 <script src="/static/assets/vendors/bootstrap/js/bootstrap.js"></script>
+<script>
+	$(function ($) {
+		$('#avatar').on('change', function () {
+			var $avatar = $(this);
+
+			var files = $avatar.prop('files');
+			if (!files.length) return;// 无文件上传
+
+			// 获取上传的文件
+			var file = files[0];
+
+			// 校验文件
+			// image/jpeg
+			if (!/^(image\/)/.test(file['type'])) return;// 校验文件类型
+			if (file['size'] > 1024 * 1024 * 10) return;// 过大，不处理
+
+			// FormData 是 h5 的新增的一个成员，专门配合 ajax 操作，用于在客户端和服务端之间传输二进制文件
+			var data = new FormData();
+			data.append('avatar', file);
+
+			// 通过 ajax 异步上传文件
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST', '/admin/api/upload.php');
+			xhr.send(data);// 借助 form data 传递文件
+
+			xhr.onload = function () {// h5 中，代表 readyState === 4 的时候
+				$avatar.siblings('img').attr('src', this.responseText);
+				$avatar.siblings('input').val(this.responseText);
+			}
+
+		});
+	});
+</script>
 <script>NProgress.done()</script>
 </body>
 </html>
