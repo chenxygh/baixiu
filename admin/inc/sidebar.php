@@ -55,5 +55,8 @@ $userinfo = xiu_get_current_user ();
 				<li<?php echo $filename === 'settings'? ' class="active"': ''; ?>><a href="settings.php">网站设置</a></li>
 			</ul>
 		</li>
+		<li<?php echo $filename === 'douban'? ' class="active"': ''; ?>>
+			<a href="douban.php"><i class="fa fa-align-left"></i>豆瓣</a>
+		</li>
 	</ul>
 </div>
