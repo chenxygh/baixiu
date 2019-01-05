@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+	/* 这里 用 + 或者 ~ 都可以 */
+	ul {
+		list-style: none;
+		font-size: 0;
+	}	
+
+	ul > li {		
+		display: inline-block;
+		font-size: 20px;
+	}
+
+	ul > li + li::before {
+		content: "|";
+		margin: 0 5px;
+	}
+	</style>
+</head>
+<body>
+	<ul>
+		<li>item 01</li>
+		<li>item 02</li>
+		<li>item 03</li>
+		<li>item 04</li>
+		<li>item 05</li>
+		<li>item 06</li>
+		<li>item 07</li>
+		<li>item 08</li>
+		<li>item 09</li>
+		<li>item 10</li>
+	</ul>
+</body>
+</html>
